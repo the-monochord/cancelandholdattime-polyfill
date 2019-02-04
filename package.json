@@ -39,5 +39,8 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "dependencies": {
+    "ramda": "^0.26.1"
   }
 }
