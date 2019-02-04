@@ -25,13 +25,13 @@ if (typeof AudioParam.prototype.cancelAndHoldAtTime === 'undefined') {
   const setTargetAtTime = AudioParam.prototype.setTargetAtTime
   AudioParam.prototype.setTargetAtTime = function (target, startTime, timeConstant) {
     // TODO: save scheduling to an internal storage
-    setTargetAtTime(target, startTime, timeConstant)
+    setTargetAtTime.call(this, target, startTime, timeConstant)
   }
 
   const setValueCurveAtTime = AudioParam.prototype.setValueCurveAtTime
   AudioParam.prototype.setValueCurveAtTime = function (values, startTime, duration) {
     // TODO: save scheduling to an internal storage
-    setValueCurveAtTime(values, startTime, duration)
+    setValueCurveAtTime.call(this, values, startTime, duration)
   }
 
   AudioParam.prototype.cancelAndHoldAtTime = function (cancelTime) {
