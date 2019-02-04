@@ -1,0 +1,43 @@
+{
+  "name": "cancelandholdattime-polyfill",
+  "version": "0.0.0-development",
+  "description": "Polyfill for AudioParam.prototype.cancelAndHoldAtTime()",
+  "main": "src/index.js",
+  "scripts": {
+    "lint": "eslint src --fix",
+    "stage-after-lint": "git add src",
+    "commit": "git-cz",
+    "commit:again": "git-cz --retry",
+    "semantic-release": "semantic-release"
+  },
+  "pre-commit": [
+    "lint",
+    "stage-after-lint"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monochord/cancelandholdattime-polyfill.git"
+  },
+  "author": "Lajos Meszaros <m_lajos@hotmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/the-monochord/cancelandholdattime-polyfill/issues"
+  },
+  "homepage": "https://github.com/the-monochord/cancelandholdattime-polyfill#readme",
+  "devDependencies": {
+    "cz-conventional-changelog": "^2.1.0",
+    "eslint": "^5.13.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-node": "^8.0.1",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "pre-commit": "^1.2.2",
+    "semantic-release": "^15.13.3"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}
