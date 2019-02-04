@@ -5,10 +5,9 @@ const scheduleChange = (self, method, params, validUntil) => {
     self._scheduledChanges = []
   }
   const entry = { method, params }
-  // TODO: how to clean up invalid scheduled data without having a setTimeout() for every entry?
   const invalidator = setTimeout(() => {
     self._scheduledChanges = reject(equals(entry), self._scheduledChanges)
-  }, validUntil)
+  }, validUntil - self.context.currentTime)
   entry.invalidator = invalidator
   self._scheduledChanges.push(entry)
 }
@@ -19,7 +18,19 @@ const gotChangesScheduled = compose(
   propOr([], '_scheduledChanges')
 )
 
+const getValueAtTime = (self, time) => {
+  // TODO: evaulate internally stored scheduled values until time based on current value
+  return 0
+}
+
+const truncateScheduledChangesAfterTime = (self, time) => {
+  // TODO: call clearTimeout(invalidator) for every entry, which is after cancelTime
+  // TODO: what should happen, if cancelTime intersects with one or more scheduled entries?
+}
+
 export {
   scheduleChange,
-  gotChangesScheduled
+  gotChangesScheduled,
+  getValueAtTime,
+  truncateScheduledChangesAfterTime
 }
