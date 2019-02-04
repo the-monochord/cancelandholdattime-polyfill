@@ -1,40 +1,26 @@
 /* global AudioParam */
 
-import { scheduleChange, gotChangesScheduled, getValueAtTime, truncateScheduledChangesAfterTime } from './helpers'
+import { gotChangesScheduled, getValueAtTime, truncateScheduledChangesAfterTime, bindContextToParams, bindSchedulerToParam } from './helpers'
 
 if (typeof AudioParam.prototype.cancelAndHoldAtTime === 'undefined') {
   // TODO: listen to minValue, maxValue, value and defaultValue
   // TODO: need to be able to get current value, but it doesn't work in FF
 
-  const setValueAtTime = AudioParam.prototype.setValueAtTime
-  AudioParam.prototype.setValueAtTime = function (value, startTime) {
-    scheduleChange(this, 'setValueAtTime', [value, startTime], startTime)
-    setValueAtTime.call(this, value, startTime)
-  }
+  bindContextToParams('createBiquadFilter', ['frequency', 'detune', 'Q', 'gain'])
+  bindContextToParams('createBufferSource', ['detune', 'playbackRate'])
+  bindContextToParams('createConstantSource', ['offset'])
+  bindContextToParams('createDelay', ['delayTime'])
+  bindContextToParams('createDynamicsCompressor', ['threshold', 'knee', 'ratio', 'attack', 'release'])
+  bindContextToParams('createGain', ['gain'])
+  bindContextToParams('createOscillator', ['frequency', 'detune'])
+  bindContextToParams('createPanner', ['orientationX', 'orientationY', 'orientationZ', 'positionX', 'positionY', 'positionZ'])
+  bindContextToParams('createStereoPanner', ['pan'])
 
-  const linearRampToValueAtTime = AudioParam.prototype.linearRampToValueAtTime
-  AudioParam.prototype.linearRampToValueAtTime = function (value, endTime) {
-    scheduleChange(this, 'linearRampToValueAtTime', [value, endTime], endTime)
-    linearRampToValueAtTime.call(this, value, endTime)
-  }
-
-  const exponentialRampToValueAtTime = AudioParam.prototype.exponentialRampToValueAtTime
-  AudioParam.prototype.exponentialRampToValueAtTime = function (value, endTime) {
-    scheduleChange(this, 'exponentialRampToValueAtTime', [value, endTime], endTime)
-    exponentialRampToValueAtTime.call(this, value, endTime)
-  }
-
-  const setTargetAtTime = AudioParam.prototype.setTargetAtTime
-  AudioParam.prototype.setTargetAtTime = function (target, startTime, timeConstant) {
-    scheduleChange(this, 'setTargetAtTime', [target, startTime, timeConstant], startTime)
-    setTargetAtTime.call(this, target, startTime, timeConstant)
-  }
-
-  const setValueCurveAtTime = AudioParam.prototype.setValueCurveAtTime
-  AudioParam.prototype.setValueCurveAtTime = function (values, startTime, duration) {
-    scheduleChange(this, 'setValueCurveAtTime', [values, startTime, duration], startTime)
-    setValueCurveAtTime.call(this, values, startTime, duration)
-  }
+  bindSchedulerToParam('setValueAtTime', 1)
+  bindSchedulerToParam('linearRampToValueAtTime', 1)
+  bindSchedulerToParam('exponentialRampToValueAtTime', 1)
+  // bindSchedulerToParam('setTargetAtTime', 1)
+  // bindSchedulerToParam('setValueCurveAtTime', 1)
 
   AudioParam.prototype.cancelAndHoldAtTime = function (cancelTime) {
     if (gotChangesScheduled(this)) {
