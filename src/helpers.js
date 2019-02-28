@@ -1,6 +1,6 @@
 /* global BaseAudioContext, AudioParam */
 
-import { reject, equals, isEmpty, propOr, compose, not, clamp } from 'ramda'
+import { isEmpty, propOr, compose, not, clamp, without } from 'ramda'
 
 const scheduleChange = (self, method, params, validUntil) => {
   if (!self._scheduledChanges) {
@@ -8,7 +8,7 @@ const scheduleChange = (self, method, params, validUntil) => {
   }
   const entry = { method, params }
   const invalidator = setTimeout(() => {
-    self._scheduledChanges = reject(equals(entry), self._scheduledChanges)
+    self._scheduledChanges = without([entry], self._scheduledChanges)
   }, validUntil - self._ctx.currentTime)
   entry.invalidator = invalidator
   self._scheduledChanges.push(entry)
