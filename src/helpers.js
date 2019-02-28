@@ -1,6 +1,6 @@
 /* global BaseAudioContext, AudioParam */
 
-import { reject, equals, isEmpty, propOr, compose, not } from 'ramda'
+import { reject, equals, isEmpty, propOr, compose, not, clamp } from 'ramda'
 
 const scheduleChange = (self, method, params, validUntil) => {
   if (!self._scheduledChanges) {
@@ -39,9 +39,11 @@ const truncateScheduledChangesAfterTime = (self, time) => {
 const bindContextToParams = (creatorName, params) => {
   const originalFn = BaseAudioContext.prototype[creatorName]
   BaseAudioContext.prototype[creatorName] = function (...args) {
-    const node = originalFn.apply(this, args)
+    const ctx = this
+    const node = originalFn.apply(ctx, args)
     params.forEach(param => {
-      node[param]._ctx = this
+      node[param]._ctx = ctx
+      node[param]._value = node[param].value
     })
     return node
   }
@@ -50,17 +52,23 @@ const bindContextToParams = (creatorName, params) => {
 const bindSchedulerToParamMethod = (methodName, timeArgIndex) => {
   const originalFn = AudioParam.prototype[methodName]
   AudioParam.prototype[methodName] = function (...args) {
-    scheduleChange(this, methodName, args, args[timeArgIndex])
-    originalFn.apply(this, args)
+    const audioParam = this
+    scheduleChange(audioParam, methodName, args, args[timeArgIndex])
+    originalFn.apply(audioParam, args)
   }
 }
 
-const bindSchedulerToParamProperty = (propertyName) => {
-  const valueDescriptor = Object.getOwnPropertyDescriptor(AudioParam.prototype, propertyName)
-
-  // TODO
-
-  Object.defineProperty(AudioParam.prototype, propertyName, valueDescriptor)
+// older Firefox versions always return the defaultValue when reading the value from an AudioParam
+// correct current value can be read from audioParam._value
+const bindSchedulerToParamValue = () => {
+  const descriptor = Object.getOwnPropertyDescriptor(AudioParam.prototype, 'value')
+  const originalSetter = descriptor.set
+  descriptor.set = function (newValue) {
+    const audioParam = this
+    audioParam._value = clamp(audioParam.minValue, audioParam.maxValue, newValue)
+    originalSetter.call(audioParam, newValue)
+  }
+  Object.defineProperty(AudioParam.prototype, 'value', descriptor)
 }
 
 export {
@@ -70,5 +78,5 @@ export {
   truncateScheduledChangesAfterTime,
   bindContextToParams,
   bindSchedulerToParamMethod,
-  bindSchedulerToParamProperty
+  bindSchedulerToParamValue
 }

@@ -6,12 +6,10 @@ import {
   truncateScheduledChangesAfterTime,
   bindContextToParams,
   bindSchedulerToParamMethod,
-  bindSchedulerToParamProperty
+  bindSchedulerToParamValue
 } from './helpers'
 
 if (typeof AudioParam.prototype.cancelAndHoldAtTime === 'undefined') {
-  // TODO: need to be able to get current value, but it doesn't work in FF
-
   bindContextToParams('createBiquadFilter', ['frequency', 'detune', 'Q', 'gain'])
   bindContextToParams('createBufferSource', ['detune', 'playbackRate'])
   bindContextToParams('createConstantSource', ['offset'])
@@ -30,10 +28,7 @@ if (typeof AudioParam.prototype.cancelAndHoldAtTime === 'undefined') {
   // bindSchedulerToParamMethod('setTargetAtTime', 1)
   // bindSchedulerToParamMethod('setValueCurveAtTime', 1)
 
-  bindSchedulerToParamProperty('minValue')
-  bindSchedulerToParamProperty('maxValue')
-  bindSchedulerToParamProperty('defaultValue')
-  bindSchedulerToParamProperty('value')
+  bindSchedulerToParamValue()
 
   AudioParam.prototype.cancelAndHoldAtTime = function (cancelTime) {
     if (gotChangesScheduled(this)) {
