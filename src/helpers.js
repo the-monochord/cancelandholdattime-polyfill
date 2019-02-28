@@ -30,9 +30,15 @@ const truncateScheduledChangesAfterTime = (self, time) => {
   // TODO: what should happen, if cancelTime intersects with one or more scheduled entries?
 }
 
-const bindContextToParams = (functionName, params) => {
-  const originalFn = BaseAudioContext.prototype[functionName]
-  BaseAudioContext.prototype[functionName] = function (...args) {
+// The AudioContext, on which the createX function was called is not accessible from the created AudioNode's params.
+// This will bind the AudioContext to the AudioParam's _ctx property.
+//
+// Example:
+//   const osc = ctx.createOscillator()
+//   console.log(osc.frequency._ctx === ctx) // true
+const bindContextToParams = (creatorName, params) => {
+  const originalFn = BaseAudioContext.prototype[creatorName]
+  BaseAudioContext.prototype[creatorName] = function (...args) {
     const node = originalFn.apply(this, args)
     params.forEach(param => {
       node[param]._ctx = this
@@ -41,12 +47,20 @@ const bindContextToParams = (functionName, params) => {
   }
 }
 
-const bindSchedulerToParam = (functionName, timeArgIndex) => {
-  const originalFn = AudioParam.prototype[functionName]
-  AudioParam.prototype[functionName] = function (...args) {
-    scheduleChange(this, functionName, args, args[timeArgIndex])
+const bindSchedulerToParamMethod = (methodName, timeArgIndex) => {
+  const originalFn = AudioParam.prototype[methodName]
+  AudioParam.prototype[methodName] = function (...args) {
+    scheduleChange(this, methodName, args, args[timeArgIndex])
     originalFn.apply(this, args)
   }
+}
+
+const bindSchedulerToParamProperty = (propertyName) => {
+  const valueDescriptor = Object.getOwnPropertyDescriptor(AudioParam.prototype, propertyName)
+
+  // TODO
+
+  Object.defineProperty(AudioParam.prototype, propertyName, valueDescriptor)
 }
 
 export {
@@ -55,5 +69,6 @@ export {
   getValueAtTime,
   truncateScheduledChangesAfterTime,
   bindContextToParams,
-  bindSchedulerToParam
+  bindSchedulerToParamMethod,
+  bindSchedulerToParamProperty
 }

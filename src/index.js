@@ -1,9 +1,15 @@
 /* global AudioParam */
 
-import { gotChangesScheduled, getValueAtTime, truncateScheduledChangesAfterTime, bindContextToParams, bindSchedulerToParam } from './helpers'
+import {
+  gotChangesScheduled,
+  getValueAtTime,
+  truncateScheduledChangesAfterTime,
+  bindContextToParams,
+  bindSchedulerToParamMethod,
+  bindSchedulerToParamProperty
+} from './helpers'
 
 if (typeof AudioParam.prototype.cancelAndHoldAtTime === 'undefined') {
-  // TODO: listen to minValue, maxValue, value and defaultValue
   // TODO: need to be able to get current value, but it doesn't work in FF
 
   bindContextToParams('createBiquadFilter', ['frequency', 'detune', 'Q', 'gain'])
@@ -16,11 +22,18 @@ if (typeof AudioParam.prototype.cancelAndHoldAtTime === 'undefined') {
   bindContextToParams('createPanner', ['orientationX', 'orientationY', 'orientationZ', 'positionX', 'positionY', 'positionZ'])
   bindContextToParams('createStereoPanner', ['pan'])
 
-  bindSchedulerToParam('setValueAtTime', 1)
-  bindSchedulerToParam('linearRampToValueAtTime', 1)
-  bindSchedulerToParam('exponentialRampToValueAtTime', 1)
-  // bindSchedulerToParam('setTargetAtTime', 1)
-  // bindSchedulerToParam('setValueCurveAtTime', 1)
+  bindSchedulerToParamMethod('setValueAtTime', 1)
+  bindSchedulerToParamMethod('linearRampToValueAtTime', 1)
+  bindSchedulerToParamMethod('exponentialRampToValueAtTime', 1)
+
+  // TODO: I don't know how the functions below work, I need to research them in order to implement them
+  // bindSchedulerToParamMethod('setTargetAtTime', 1)
+  // bindSchedulerToParamMethod('setValueCurveAtTime', 1)
+
+  bindSchedulerToParamProperty('minValue')
+  bindSchedulerToParamProperty('maxValue')
+  bindSchedulerToParamProperty('defaultValue')
+  bindSchedulerToParamProperty('value')
 
   AudioParam.prototype.cancelAndHoldAtTime = function (cancelTime) {
     if (gotChangesScheduled(this)) {
