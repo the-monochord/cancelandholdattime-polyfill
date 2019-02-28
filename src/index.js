@@ -31,12 +31,13 @@ if (typeof AudioParam.prototype.cancelAndHoldAtTime === 'undefined') {
   hijackParamValueSetter()
 
   AudioParam.prototype.cancelAndHoldAtTime = function (cancelTime) {
-    if (gotChangesScheduled(this)) {
-      const valueAtCancelTime = getValueAtTime(this, cancelTime)
-      truncateScheduledChangesAfterTime(this, cancelTime)
+    const audioParam = this
+    if (gotChangesScheduled(audioParam)) {
+      const valueAtCancelTime = getValueAtTime(audioParam, cancelTime)
+      truncateScheduledChangesAfterTime(audioParam, cancelTime)
 
-      this.cancelScheduledValues(cancelTime)
-      this.setValueAtTime(valueAtCancelTime, cancelTime)
+      audioParam.cancelScheduledValues(cancelTime)
+      audioParam.setValueAtTime(valueAtCancelTime, cancelTime)
     }
   }
 }

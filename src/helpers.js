@@ -59,7 +59,7 @@ const bindSchedulerToParamMethod = (methodName, timeArgIndex) => {
 }
 
 // older Firefox versions always return the defaultValue when reading the value from an AudioParam
-// correct current value can be read from audioParam._value
+// the correct current value can be read from audioParam._value
 const hijackParamValueSetter = () => {
   const descriptor = Object.getOwnPropertyDescriptor(AudioParam.prototype, 'value')
   const originalSetter = descriptor.set
