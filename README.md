@@ -11,3 +11,8 @@ Polyfill for AudioParam.prototype.cancelAndHoldAtTime()
 ## What is this project
 
 [AudioParam.prototype.cancelAndHoldAtTime()](https://developer.mozilla.org/en-US/docs/Web/API/AudioParam/cancelAndHoldAtTime) is an experimental function in the Web Audio API and only supported by Chrome based browsers.
+
+## Task/TODOs:
+
+* Add builder
+* Add tests
