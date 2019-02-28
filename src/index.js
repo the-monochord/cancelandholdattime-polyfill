@@ -6,7 +6,7 @@ import {
   truncateScheduledChangesAfterTime,
   bindContextToParams,
   bindSchedulerToParamMethod,
-  bindSchedulerToParamValue
+  hijackParamValueSetter
 } from './helpers'
 
 if (typeof AudioParam.prototype.cancelAndHoldAtTime === 'undefined') {
@@ -28,7 +28,7 @@ if (typeof AudioParam.prototype.cancelAndHoldAtTime === 'undefined') {
   // bindSchedulerToParamMethod('setTargetAtTime', 1)
   // bindSchedulerToParamMethod('setValueCurveAtTime', 1)
 
-  bindSchedulerToParamValue()
+  hijackParamValueSetter()
 
   AudioParam.prototype.cancelAndHoldAtTime = function (cancelTime) {
     if (gotChangesScheduled(this)) {
