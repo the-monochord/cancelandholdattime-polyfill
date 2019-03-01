@@ -20,6 +20,7 @@ if (typeof AudioParam.prototype.cancelAndHoldAtTime === 'undefined') {
   bindContextToParams('createPanner', ['orientationX', 'orientationY', 'orientationZ', 'positionX', 'positionY', 'positionZ'])
   bindContextToParams('createStereoPanner', ['pan'])
 
+  bindSchedulerToParamMethod('cancelScheduledValues', 0)
   bindSchedulerToParamMethod('setValueAtTime', 1)
   bindSchedulerToParamMethod('linearRampToValueAtTime', 1)
   bindSchedulerToParamMethod('exponentialRampToValueAtTime', 1)

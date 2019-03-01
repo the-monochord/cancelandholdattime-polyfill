@@ -16,3 +16,9 @@ Polyfill for AudioParam.prototype.cancelAndHoldAtTime()
 
 * Add builder
 * Add tests
+
+## Resources
+
+https://developer.mozilla.org/en-US/docs/Web/API/AudioParam/cancelAndHoldAtTime
+https://github.com/WebAudio/web-audio-api/issues/341
+https://github.com/WebAudio/web-audio-api/issues/128
