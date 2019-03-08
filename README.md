@@ -14,11 +14,33 @@ Polyfill for AudioParam.prototype.cancelAndHoldAtTime()
 
 ## Task/TODOs:
 
-* Add builder
+* Add builder (rollup with babel)
 * Add tests
 
 ## Resources
 
 https://developer.mozilla.org/en-US/docs/Web/API/AudioParam/cancelAndHoldAtTime
 https://github.com/WebAudio/web-audio-api/issues/341
+
+### Testing the relationship between .value setter and schedulers
+
 https://github.com/WebAudio/web-audio-api/issues/128
+
+Does setting .value during scheduled events cancels events afterwards?
+
+https://jsfiddle.net/lmeszaros/34yqz9nj/3/ - ramp interruption with manual value change demo
+
+(mac) Firefox and Safari: value change gets ignored during ramp
+(mac) Chrome: value will change and ramp will be recalculated
+
+https://jsfiddle.net/lmeszaros/34yqz9nj/4/ - scheduled value change interruption with manual value change demo
+
+(mac) Firefox and Safari: value change gets ignored
+(mac) Chrome: value will change and scheduled change will happen too
+
+https://jsfiddle.net/lmeszaros/34yqz9nj/5/ - ramp interruption with scheduled value change demo
+
+(mac) Firefox and Safari: value will change and ramp will be recalculated
+(mac) Chrome: result is same as when calling .value in the middle of a ramp
+
+_Since this polyfill targets non-chrome browsers, I think it's safe to implement how Firefox behaves._

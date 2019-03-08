@@ -55,6 +55,7 @@ const bindSchedulerToParamMethod = (methodName, timeArgIndex) => {
     const audioParam = this
     scheduleChange(audioParam, methodName, args, args[timeArgIndex])
     originalFn.apply(audioParam, args)
+    return audioParam
   }
 }
 
@@ -65,8 +66,11 @@ const hijackParamValueSetter = () => {
   const originalSetter = descriptor.set
   descriptor.set = function (newValue) {
     const audioParam = this
-    audioParam._value = clamp(audioParam.minValue, audioParam.maxValue, newValue)
-    originalSetter.call(audioParam, newValue)
+    // value change gets ignored in Firefox and Safari, if there are changes scheduled
+    if (!gotChangesScheduled(audioParam)) {
+      audioParam._value = clamp(audioParam.minValue, audioParam.maxValue, newValue)
+      originalSetter.call(audioParam, newValue)
+    }
   }
   Object.defineProperty(AudioParam.prototype, 'value', descriptor)
 }
