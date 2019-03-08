@@ -58,3 +58,24 @@ https://github.com/WebAudio/web-audio-api/issues/341
 
 (mac) Firefox and Safari: first .value set is okay, ramp fails and sets value at it's end, then second .value setting is ignored, ramp works correctly
 (mac) Chrome: every ramp works correctly, setting .value acts as setValueAtTime()
+
+### Moving back in time during ramp
+
+**starting a ramp, than move back by 0.9 seconds** - https://jsfiddle.net/lmeszaros/34yqz9nj/39/
+
+(mac) Firefox and Safari: value gets changed and ramp recalculates
+(mac) Chrome: value gets changed and ramp recalculates
+
+**starting a ramp, than move back by 1 seconds** - https://jsfiddle.net/lmeszaros/34yqz9nj/40/
+
+(mac) Firefox and Safari: value doesn't change, ramp goes on unchanged
+(mac) Chrome: value doesn't change, ramp goes on unchanged
+
+_The conclusion is that setting a time value less, than ctx.currentTime will not always get clamped to ctx.currentTime_
+_The clamping only happens for setTargetAtTime's and setValueCurveAtTime's startTime attribute_
+
+https://developer.mozilla.org/en-US/docs/Web/API/AudioParam/setTargetAtTime
+https://developer.mozilla.org/en-US/docs/Web/API/AudioParam/setValueCurveAtTime
+
+> A double representing the time (in seconds) after the AudioContext was first created that the change in value will
+> happen. If this value is lower than AudioContext.currentTime, it is clamped to currentTime.
