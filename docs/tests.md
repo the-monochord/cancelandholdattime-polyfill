@@ -79,3 +79,9 @@ https://developer.mozilla.org/en-US/docs/Web/API/AudioParam/setValueCurveAtTime
 
 > A double representing the time (in seconds) after the AudioContext was first created that the change in value will
 > happen. If this value is lower than AudioContext.currentTime, it is clamped to currentTime.
+
+**Found the reason:**
+
+`setTimeout(() => { console.log(ctx.currentTime - 1) } , 1000)`
+
+The console.log will reveal, that less, than 1000 milliseconds have passed and ctx.currentTime - 1 will be less, than 0.
