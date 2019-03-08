@@ -43,4 +43,9 @@ https://jsfiddle.net/lmeszaros/34yqz9nj/5/ - ramp interruption with scheduled va
 (mac) Firefox and Safari: value will change and ramp will be recalculated
 (mac) Chrome: result is same as when calling .value in the middle of a ramp
 
+https://jsfiddle.net/lmeszaros/34yqz9nj/7/ - having 2 ramps, where the 1st gets interrupted with a manual value change
+
+(mac) Firefox and Safari: interrupting a ramp with manual value change will not affect future ramps
+(mac) Chrome: only the 1st ramp will be interrupted, it does not affect future ramps
+
 _Since this polyfill targets non-chrome browsers, I think it's safe to implement how Firefox behaves._
