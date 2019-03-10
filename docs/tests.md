@@ -8,23 +8,23 @@ Does setting .value during scheduled events cancels events afterwards?
 
 **ramp interruption with manual value change demo** - https://jsfiddle.net/lmeszaros/34yqz9nj/3/
 
-(mac) Firefox and Safari: value change gets ignored during ramp
-(mac) Chrome: value will change and ramp will be recalculated
+(mac and windows) Firefox and Safari: value change gets ignored during ramp
+(mac and windows) Chrome: value will change and ramp will be recalculated
 
 **scheduled value change interruption with manual value change demo** - https://jsfiddle.net/lmeszaros/34yqz9nj/4/
 
-(mac) Firefox and Safari: value change gets ignored
-(mac) Chrome: value will change and scheduled change will happen too
+(mac and windows) Firefox and Safari: value change gets ignored
+(mac and windows) Chrome: value will change and scheduled change will happen too
 
 **ramp interruption with scheduled value change demo** - https://jsfiddle.net/lmeszaros/34yqz9nj/5/
 
-(mac) Firefox and Safari: value will change and ramp will be recalculated
-(mac) Chrome: result is same as when calling .value in the middle of a ramp
+(mac and windows) Firefox and Safari: value will change and ramp will be recalculated
+(mac and windows) Chrome: result is same as when calling .value in the middle of a ramp
 
 **having 2 ramps, where the 1st gets interrupted with a manual value change** - https://jsfiddle.net/lmeszaros/34yqz9nj/7/
 
-(mac) Firefox and Safari: interrupting a ramp with manual value change will not affect future ramps
-(mac) Chrome: only the 1st ramp will be interrupted, it does not affect future ramps
+(mac and windows) Firefox and Safari: interrupting a ramp with manual value change will not affect future ramps
+(mac and windows) Chrome: only the 1st ramp will be interrupted, it does not affect future ramps
 
 _Since this polyfill targets non-chrome browsers, I think it's safe to implement how Firefox behaves._
 
@@ -39,25 +39,25 @@ https://github.com/WebAudio/web-audio-api/issues/341
 
 **initializing a ramp without a set event** - https://jsfiddle.net/lmeszaros/ra60yvgh/13/
 
-(mac) Firefox and Safari: ramping is ignored, target value is immediately set, acts like setValueAtTime
-(mac) Chrome: ramp works correctly, goes from 0 to 1
+(mac and windows) Firefox and Safari: ramping is ignored, target value is immediately set, acts like setValueAtTime
+(mac and windows) Chrome: ramp works correctly, goes from 0 to 1
 
 **initializing 2 ramps without a set event** - https://jsfiddle.net/lmeszaros/ra60yvgh/16/
 
-(mac) Firefox and Safari: 1st ramping is ignored, second ramp works fine
-(mac) Chrome: both ramps work correctly
+(mac and windows) Firefox and Safari: 1st ramping is ignored, second ramp works fine
+(mac and windows) Chrome: both ramps work correctly
 
 ## Combining the above 2
 
 **setting value after successful ramping** - https://jsfiddle.net/lmeszaros/bqnrfaL2/6/
 
-(mac) Firefox and Safari: first ramp works correctly, set .value after it is ignored, second ramp is okay
-(mac) Chrome: first ramp is okay, second ramp starts, then .value is set and ramp recalculates
+(mac and windows) Firefox and Safari: first ramp works correctly, set .value after it is ignored, second ramp is okay
+(mac and windows) Chrome: first ramp is okay, second ramp starts, then .value is set and ramp recalculates
 
 **setting value after failed ramping** - https://jsfiddle.net/lmeszaros/bqnrfaL2/9/
 
-(mac) Firefox and Safari: first .value set is okay, ramp fails and sets value at it's end, then second .value setting is ignored, ramp works correctly
-(mac) Chrome: every ramp works correctly, setting .value acts as setValueAtTime()
+(mac and windows) Firefox and Safari: first .value set is okay, ramp fails and sets value at it's end, then second .value setting is ignored, ramp works correctly
+(mac and windows) Chrome: every ramp works correctly, setting .value acts as setValueAtTime()
 
 ### Moving back in time during ramp
 
@@ -65,11 +65,13 @@ https://github.com/WebAudio/web-audio-api/issues/341
 
 (mac) Firefox and Safari: value gets changed and ramp recalculates
 (mac) Chrome: value gets changed and ramp recalculates
+(windows) Firefox and Chrome: value doesn't change, ramp goes on unchanged
 
 **starting a ramp, than move back by 1 seconds** - https://jsfiddle.net/lmeszaros/34yqz9nj/40/
 
 (mac) Firefox and Safari: value doesn't change, ramp goes on unchanged
 (mac) Chrome: value doesn't change, ramp goes on unchanged
+(windows) Firefox and Chrome: value doesn't change, ramp goes on unchanged
 
 _The conclusion is that setting a time value less, than ctx.currentTime will not always get clamped to ctx.currentTime_
 _The clamping only happens for setTargetAtTime's and setValueCurveAtTime's startTime attribute_
@@ -85,3 +87,4 @@ https://developer.mozilla.org/en-US/docs/Web/API/AudioParam/setValueCurveAtTime
 `setTimeout(() => { console.log(ctx.currentTime - 1) } , 1000)`
 
 The console.log will reveal, that less, than 1000 milliseconds have passed and ctx.currentTime - 1 will be less, than 0.
+This is an issue of setTimeout, not the webaudio api.
