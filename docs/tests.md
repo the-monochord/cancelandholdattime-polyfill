@@ -103,3 +103,12 @@ firefox and chrome works the same: volume starts at 0, then at 1.5 (invocationTi
 
 targetTime in setValueAtTime(targetTime) clamps to invokation time, when targetTime < invocationTime
 if there are ramps going at that time, then they will recalculate from the set value at invocationTime, it will not try to interpolate where should the ramp be
+
+## immediate overriding
+
+**setting value to 0.5 and 0 in the same time in the past** - https://jsfiddle.net/lmeszaros/49n6sva5/4/
+**setting value to 0 and 0.5 in the same time in the past** - https://jsfiddle.net/lmeszaros/49n6sva5/5/
+**setting value to 0.5 and 0 in the same time in the future** - https://jsfiddle.net/lmeszaros/49n6sva5/7/
+**setting value to 0 and 0.5 in the same time in the future** - https://jsfiddle.net/lmeszaros/49n6sva5/6/
+
+the same happens in all browsers: the later setValueAtTime overrides the prior ones
