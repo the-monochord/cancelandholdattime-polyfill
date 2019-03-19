@@ -63,8 +63,8 @@ https://github.com/WebAudio/web-audio-api/issues/341
 
 **starting a ramp, than move back by 0.9 seconds** - https://jsfiddle.net/lmeszaros/34yqz9nj/39/
 
-(mac) Firefox and Safari: value gets changed and ramp recalculates
-(mac) Chrome: value gets changed and ramp recalculates
+(mac) Firefox and Safari: value gets changed to 3 at invocationTime and ramp recalculates from that point
+(mac) Chrome: value gets changed to 3 at invocationTime and ramp recalculates from that point
 (windows) Firefox and Chrome: value doesn't change, ramp goes on unchanged
 
 **starting a ramp, than move back by 1 seconds** - https://jsfiddle.net/lmeszaros/34yqz9nj/40/
@@ -88,3 +88,18 @@ https://developer.mozilla.org/en-US/docs/Web/API/AudioParam/setValueCurveAtTime
 
 The console.log will reveal, that less, than 1000 milliseconds have passed and ctx.currentTime - 1 will be less, than 0.
 This is an issue of setTimeout, not the webaudio api.
+
+## changing value back in time
+
+**cancelling scheduled values, then set value before it** - https://jsfiddle.net/lmeszaros/491dxvqL/4/
+
+firefox and chrome works the same: volume starts at 0, then at 1 (invocationTime) the volume changes to 0.5
+
+**cancelling scheduled values, then set value after it** - https://jsfiddle.net/lmeszaros/491dxvqL/5/
+
+firefox and chrome works the same: volume starts at 0, then at 1.5 (invocationTime - 0.5) the volume changes to 0.5
+
+### Conclusion
+
+targetTime in setValueAtTime(targetTime) clamps to invokation time, when targetTime < invocationTime
+if there are ramps going at that time, then they will recalculate from the set value at invocationTime, it will not try to interpolate where should the ramp be
