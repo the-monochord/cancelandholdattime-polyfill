@@ -55,11 +55,13 @@ const bindContextToParams = (creatorName, params) => {
 
 const bindSchedulerToParamMethod = (methodName, timeArgIndex) => {
   const originalFn = AudioParam.prototype[methodName]
-  AudioParam.prototype[methodName] = function (...args) {
-    const audioParam = this
-    scheduleChange(audioParam, methodName, args, args[timeArgIndex])
-    originalFn.apply(audioParam, args)
-    return audioParam
+  if (!isNil(originalFn)) {
+    AudioParam.prototype[methodName] = function (...args) {
+      const audioParam = this
+      scheduleChange(audioParam, methodName, args, args[timeArgIndex])
+      originalFn.apply(audioParam, args)
+      return audioParam
+    }
   }
 }
 
