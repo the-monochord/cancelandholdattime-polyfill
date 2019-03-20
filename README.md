@@ -14,7 +14,6 @@ Polyfill for AudioParam.prototype.cancelAndHoldAtTime()
 
 ## Task/TODOs:
 
-* Add builder (rollup with babel)
 * Add tests
 
 ## Resources

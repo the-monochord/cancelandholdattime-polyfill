@@ -1,5 +1,6 @@
 /* global AudioParam */
 
+import { isNil } from 'ramda'
 import {
   gotChangesScheduled,
   getValueAtTime,
@@ -9,7 +10,8 @@ import {
   hijackParamValueSetter
 } from './helpers'
 
-if (typeof AudioParam.prototype.cancelAndHoldAtTime === 'undefined') {
+if (!isNil(window.AudioParam) && isNil(AudioParam.prototype.cancelAndHoldAtTime)) {
+  // bind all the create* functions, which create objects with at least 1 AudioParam among their properties:
   bindContextToParams('createBiquadFilter', ['frequency', 'detune', 'Q', 'gain'])
   bindContextToParams('createBufferSource', ['detune', 'playbackRate'])
   bindContextToParams('createConstantSource', ['offset'])
@@ -20,6 +22,7 @@ if (typeof AudioParam.prototype.cancelAndHoldAtTime === 'undefined') {
   bindContextToParams('createPanner', ['orientationX', 'orientationY', 'orientationZ', 'positionX', 'positionY', 'positionZ'])
   bindContextToParams('createStereoPanner', ['pan'])
 
+  // hijack param methods and mark which argument has the time
   bindSchedulerToParamMethod('cancelScheduledValues', 0)
   bindSchedulerToParamMethod('setValueAtTime', 1)
   bindSchedulerToParamMethod('linearRampToValueAtTime', 1)

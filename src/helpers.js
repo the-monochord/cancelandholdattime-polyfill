@@ -1,6 +1,8 @@
-/* global BaseAudioContext, AudioParam */
+/* global BaseAudioContext, AudioContext, webkitAudioContext, AudioParam */
 
-import { isEmpty, propOr, compose, not, clamp, without } from 'ramda'
+import { isEmpty, propOr, compose, not, clamp, without, isNil } from 'ramda'
+
+const AudioContextClass = isNil(window.BaseAudioContext) ? (isNil(window.AudioContext) ? webkitAudioContext : AudioContext) : BaseAudioContext
 
 const scheduleChange = (self, method, params, validUntil) => {
   if (!self._scheduledChanges) {
@@ -37,15 +39,17 @@ const truncateScheduledChangesAfterTime = (self, time) => {
 //   const osc = ctx.createOscillator()
 //   console.log(osc.frequency._ctx === ctx) // true
 const bindContextToParams = (creatorName, params) => {
-  const originalFn = BaseAudioContext.prototype[creatorName]
-  BaseAudioContext.prototype[creatorName] = function (...args) {
-    const ctx = this
-    const node = originalFn.apply(ctx, args)
-    params.forEach(param => {
-      node[param]._ctx = ctx
-      node[param]._value = node[param].value
-    })
-    return node
+  const originalFn = AudioContextClass.prototype[creatorName]
+  if (!isNil(originalFn)) {
+    AudioContextClass.prototype[creatorName] = function (...args) {
+      const ctx = this
+      const node = originalFn.apply(ctx, args)
+      params.forEach(param => {
+        node[param]._ctx = ctx
+        node[param]._value = node[param].value
+      })
+      return node
+    }
   }
 }
 
