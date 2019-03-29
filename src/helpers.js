@@ -4,16 +4,16 @@ import { isEmpty, propOr, compose, not, clamp, without, isNil } from 'ramda'
 
 const AudioContextClass = isNil(window.BaseAudioContext) ? (isNil(window.AudioContext) ? webkitAudioContext : AudioContext) : BaseAudioContext
 
-const scheduleChange = (self, method, params, validUntil) => {
-  if (!self._scheduledChanges) {
-    self._scheduledChanges = []
+const scheduleChange = (audioParam, method, params, validUntil) => {
+  if (!audioParam._scheduledChanges) {
+    audioParam._scheduledChanges = []
   }
   const entry = { method, params }
   const invalidator = setTimeout(() => {
-    self._scheduledChanges = without([entry], self._scheduledChanges)
-  }, validUntil - self._ctx.currentTime)
+    audioParam._scheduledChanges = without([entry], audioParam._scheduledChanges)
+  }, validUntil - audioParam._ctx.currentTime)
   entry.invalidator = invalidator
-  self._scheduledChanges.push(entry)
+  audioParam._scheduledChanges.push(entry)
 }
 
 const gotChangesScheduled = compose(
@@ -22,12 +22,12 @@ const gotChangesScheduled = compose(
   propOr([], '_scheduledChanges')
 )
 
-const getValueAtTime = (self, time) => {
+const getValueAtTime = (audioParam, time) => {
   // TODO: evaulate internally stored scheduled values until time based on current value
   return 0
 }
 
-const truncateScheduledChangesAfterTime = (self, time) => {
+const truncateScheduledChangesAfterTime = (audioParam, time) => {
   // TODO: call clearTimeout(invalidator) for every entry, which is after cancelTime
   // TODO: what should happen, if cancelTime intersects with one or more scheduled entries?
 }
