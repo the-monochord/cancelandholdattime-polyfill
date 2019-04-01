@@ -1,35 +1,36 @@
 /* global BaseAudioContext, AudioContext, webkitAudioContext, AudioParam */
 
-import { isEmpty, propOr, compose, not, clamp, without, isNil } from 'ramda'
+import { isEmpty, prop, compose, not, clamp, isNil, reject } from 'ramda'
 
 const AudioContextClass = isNil(window.BaseAudioContext) ? (isNil(window.AudioContext) ? webkitAudioContext : AudioContext) : BaseAudioContext
 
-const scheduleChange = (audioParam, method, params, validUntil) => {
-  if (!audioParam._scheduledChanges) {
-    audioParam._scheduledChanges = []
-  }
-  const entry = { method, params }
-  const invalidator = setTimeout(() => {
-    audioParam._scheduledChanges = without([entry], audioParam._scheduledChanges)
-  }, validUntil - audioParam._ctx.currentTime)
-  entry.invalidator = invalidator
-  audioParam._scheduledChanges.push(entry)
+const removeOutdatedSchedulements = audioParam => {
+  audioParam._scheduledChanges = reject(entry => entry.targetTime < audioParam._ctx.currentTime, audioParam._scheduledChanges)
+  return audioParam
 }
 
+const scheduleChange = (audioParam, method, params, targetTime) => {
+  // TODO: if we already have an entry scheduled for the marked time, then override it with this entry
+  // TODO: if we get a cancelScheduledValues method, then remove subsequent entries
+  const entry = { method, params, targetTime }
+  audioParam._scheduledChanges.push(entry)
+  removeOutdatedSchedulements(audioParam)
+}
+
+// gotChangesScheduled :: audioParam -> bool
 const gotChangesScheduled = compose(
   not,
   isEmpty,
-  propOr([], '_scheduledChanges')
+  prop('_scheduledChanges')
 )
 
 const getValueAtTime = (audioParam, time) => {
-  // TODO: evaulate internally stored scheduled values until time based on current value
-  return 0
-}
-
-const truncateScheduledChangesAfterTime = (audioParam, time) => {
-  // TODO: call clearTimeout(invalidator) for every entry, which is after cancelTime
-  // TODO: what should happen, if cancelTime intersects with one or more scheduled entries?
+  if (gotChangesScheduled(audioParam)) {
+    // TODO: evaulate internally stored scheduled values until time based on current value
+    return 0
+  } else {
+    return audioParam._value
+  }
 }
 
 // The AudioContext, on which the createX function was called is not accessible from the created AudioNode's params.
@@ -45,8 +46,10 @@ const bindContextToParams = (creatorName, params) => {
       const ctx = this
       const node = originalFn.apply(ctx, args)
       params.forEach(param => {
-        node[param]._ctx = ctx
-        node[param]._value = node[param].value
+        const audioParam = node[param]
+        audioParam._ctx = ctx
+        audioParam._value = audioParam.value
+        audioParam._scheduledChanges = []
       })
       return node
     }
@@ -82,10 +85,10 @@ const hijackParamValueSetter = () => {
 }
 
 export {
+  removeOutdatedSchedulements,
   scheduleChange,
   gotChangesScheduled,
   getValueAtTime,
-  truncateScheduledChangesAfterTime,
   bindContextToParams,
   bindSchedulerToParamMethod,
   hijackParamValueSetter

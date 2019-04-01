@@ -4,7 +4,6 @@ import { isNil } from 'ramda'
 import {
   gotChangesScheduled,
   getValueAtTime,
-  truncateScheduledChangesAfterTime,
   bindContextToParams,
   bindSchedulerToParamMethod,
   hijackParamValueSetter
@@ -38,7 +37,6 @@ if (!isNil(window.AudioParam) && isNil(AudioParam.prototype.cancelAndHoldAtTime)
     const audioParam = this
     if (gotChangesScheduled(audioParam)) {
       const valueAtCancelTime = getValueAtTime(audioParam, cancelTime)
-      truncateScheduledChangesAfterTime(audioParam, cancelTime)
 
       audioParam.cancelScheduledValues(cancelTime)
       audioParam.setValueAtTime(valueAtCancelTime, cancelTime)

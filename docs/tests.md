@@ -112,3 +112,9 @@ if there are ramps going at that time, then they will recalculate from the set v
 **setting value to 0 and 0.5 in the same time in the future** - https://jsfiddle.net/lmeszaros/49n6sva5/6/
 
 the same happens in all browsers: the later setValueAtTime overrides the prior ones
+
+## cancelling scheduled values, then setting new ones
+
+**cancelling scheduled values, then setting new ones** - https://jsfiddle.net/lmeszaros/491dxvqL/12/
+
+firefox and chrome behaves the same: volume setting to 1 will be cancelled, but setting to 0.5 will work
