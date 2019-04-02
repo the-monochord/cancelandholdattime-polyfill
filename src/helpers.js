@@ -1,26 +1,33 @@
 /* global BaseAudioContext, AudioContext, webkitAudioContext, AudioParam */
 
-import { isEmpty, prop, compose, not, clamp, isNil, reject, append, equals, lt, __, gte, either, filter, both } from 'ramda'
+import { isEmpty, prop, compose, not, clamp, isNil, reject, append, equals, lt, __, gte, either, filter, both, reduce, max, pluck } from 'ramda'
 
 const AudioContextClass = isNil(window.BaseAudioContext) ? (isNil(window.AudioContext) ? webkitAudioContext : AudioContext) : BaseAudioContext
+
+const maxAll = reduce(max, -Infinity)
+
+const evaluateSchedulement = (scheduledChanges, initialValue, endTime = Infinity) => {
+  // TODO: evaluate scheduledChanges until endTime. if endTime intersects a ramp, then interpolate it
+  return 0
+}
 
 const scheduleChange = (audioParam, method, params, targetTime) => {
   const now = audioParam._ctx.currentTime
 
-  const outdatedSchedulements = compose(
-    // TODO: sort outdated stuff based on targetTime property, ASC
-    filter(compose(
-      both(
-        gte(__, audioParam._valueWasLastSetAt),
-        lt(__, now)
-      ),
-      prop('targetTime')
-    ))
-  )(audioParam._scheduledChanges)
+  const outdatedSchedulements = filter(compose(
+    both(
+      gte(__, audioParam._valueWasLastSetAt),
+      lt(__, now)
+    ),
+    prop('targetTime')
+  ))(audioParam._scheduledChanges)
 
   if (!isEmpty(outdatedSchedulements)) {
-    // TODO: update _value with evaulation of outdated stuff
-    // TODO: update _valueWasLastSet to the targetTime of last outdated stuff
+    audioParam._valueWasLastSetAt = compose(
+      maxAll,
+      pluck('targetTime')
+    )(outdatedSchedulements)
+    audioParam._value = evaluateSchedulement(outdatedSchedulements, audioParam._value)
   }
 
   audioParam._scheduledChanges = compose(
@@ -37,8 +44,6 @@ const scheduleChange = (audioParam, method, params, targetTime) => {
       prop('targetTime')
     ))
   )(audioParam._scheduledChanges)
-
-  audioParam._hadFinishedSchedulement = true
 }
 
 // gotChangesScheduled :: audioParam -> bool
@@ -50,8 +55,7 @@ const gotChangesScheduled = compose(
 
 const getValueAtTime = (audioParam, time) => {
   if (gotChangesScheduled(audioParam)) {
-    // TODO: evaulate internally stored scheduled values until time based on current value
-    return 0
+    return evaluateSchedulement(audioParam._scheduledChanges, audioParam._value, time)
   } else {
     return audioParam._value
   }
@@ -75,7 +79,9 @@ const bindContextToParams = (creatorName, params) => {
         audioParam._value = audioParam.value
         audioParam._valueWasLastSetAt = 0
         audioParam._scheduledChanges = []
-        audioParam._hadFinishedSchedulement = false // ramps don't take effect, until there was at least one scheduled change
+
+        // ramps don't take effect, until there was at least one scheduled change
+        audioParam._hadFinishedSchedulement = false // TODO: when to set this to true?
       })
       return node
     }
