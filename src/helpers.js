@@ -1,20 +1,20 @@
 /* global BaseAudioContext, AudioContext, webkitAudioContext, AudioParam */
 
-import { isEmpty, prop, compose, not, clamp, isNil, reject } from 'ramda'
+import { isEmpty, prop, compose, not, clamp, isNil, reject, append, equals, lt, __, gte, either } from 'ramda'
 
 const AudioContextClass = isNil(window.BaseAudioContext) ? (isNil(window.AudioContext) ? webkitAudioContext : AudioContext) : BaseAudioContext
 
-const removeOutdatedSchedulements = audioParam => {
-  audioParam._scheduledChanges = reject(entry => entry.targetTime < audioParam._ctx.currentTime, audioParam._scheduledChanges)
-  return audioParam
-}
-
 const scheduleChange = (audioParam, method, params, targetTime) => {
-  // TODO: if we already have an entry scheduled for the marked time, then override it with this entry
-  // TODO: if we get a cancelScheduledValues method, then remove subsequent entries
-  const entry = { method, params, targetTime }
-  audioParam._scheduledChanges.push(entry)
-  removeOutdatedSchedulements(audioParam)
+  audioParam._scheduledChanges = compose(
+    append({ method, params, targetTime }),
+    reject(compose(
+      either(
+        (method === 'cancelScheduledValues' ? gte(__, targetTime) : equals(__, targetTime)),
+        lt(__, audioParam._ctx.currentTime)
+      ),
+      prop('targetTime')
+    ))
+  )(audioParam._scheduledChanges)
 }
 
 // gotChangesScheduled :: audioParam -> bool
@@ -85,7 +85,6 @@ const hijackParamValueSetter = () => {
 }
 
 export {
-  removeOutdatedSchedulements,
   scheduleChange,
   gotChangesScheduled,
   getValueAtTime,
