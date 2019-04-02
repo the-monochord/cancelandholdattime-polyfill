@@ -1,20 +1,44 @@
 /* global BaseAudioContext, AudioContext, webkitAudioContext, AudioParam */
 
-import { isEmpty, prop, compose, not, clamp, isNil, reject, append, equals, lt, __, gte, either } from 'ramda'
+import { isEmpty, prop, compose, not, clamp, isNil, reject, append, equals, lt, __, gte, either, filter, both } from 'ramda'
 
 const AudioContextClass = isNil(window.BaseAudioContext) ? (isNil(window.AudioContext) ? webkitAudioContext : AudioContext) : BaseAudioContext
 
 const scheduleChange = (audioParam, method, params, targetTime) => {
-  audioParam._scheduledChanges = compose(
-    append({ method, params, targetTime }),
-    reject(compose(
-      either(
-        (method === 'cancelScheduledValues' ? gte(__, targetTime) : equals(__, targetTime)),
-        lt(__, audioParam._ctx.currentTime)
+  const now = audioParam._ctx.currentTime
+
+  const outdatedSchedulements = compose(
+    // TODO: sort outdated stuff based on targetTime property, ASC
+    filter(compose(
+      both(
+        gte(__, audioParam._valueWasLastSetAt),
+        lt(__, now)
       ),
       prop('targetTime')
     ))
   )(audioParam._scheduledChanges)
+
+  if (!isEmpty(outdatedSchedulements)) {
+    // TODO: update _value with evaulation of outdated stuff
+    // TODO: update _valueWasLastSet to the targetTime of last outdated stuff
+  }
+
+  audioParam._scheduledChanges = compose(
+    append({
+      method,
+      params,
+      targetTime: clamp(now, Infinity, targetTime)
+    }),
+    reject(compose(
+      either(
+        (method === 'cancelScheduledValues' ? gte(__, targetTime) : equals(__, targetTime)),
+        lt(__, now)
+      ),
+      prop('targetTime')
+    ))
+  )(audioParam._scheduledChanges)
+
+  audioParam._hadFinishedSchedulement = true
 }
 
 // gotChangesScheduled :: audioParam -> bool
@@ -49,7 +73,9 @@ const bindContextToParams = (creatorName, params) => {
         const audioParam = node[param]
         audioParam._ctx = ctx
         audioParam._value = audioParam.value
+        audioParam._valueWasLastSetAt = 0
         audioParam._scheduledChanges = []
+        audioParam._hadFinishedSchedulement = false // ramps don't take effect, until there was at least one scheduled change
       })
       return node
     }
@@ -78,6 +104,7 @@ const hijackParamValueSetter = () => {
     // value change gets ignored in Firefox and Safari, if there are changes scheduled
     if (!gotChangesScheduled(audioParam)) {
       audioParam._value = clamp(audioParam.minValue, audioParam.maxValue, newValue)
+      audioParam._valueWasLastSetAt = audioParam._ctx.currentTime
       originalSetter.call(audioParam, newValue)
     }
   }
