@@ -1,7 +1,7 @@
 /* global BaseAudioContext, AudioContext, webkitAudioContext, AudioParam */
 
 /* find, propEq, min, gt */
-import { isEmpty, prop, compose, not, clamp, isNil, reject, append, equals, lt, __, gte, either, filter, both, reduce, max, pluck } from 'ramda'
+import { isEmpty, prop, compose, not, clamp, isNil, reject, append, equals, lt, __, gte, either, filter, both, reduce, max, pluck, unless } from 'ramda'
 // import { getLinearRampToValueAtTime, getExponentialRampToValueAtTime } from 'pseudo-audio-param/lib/expr.js'
 
 const AudioContextClass = isNil(window.BaseAudioContext) ? (isNil(window.AudioContext) ? webkitAudioContext : AudioContext) : BaseAudioContext
@@ -67,12 +67,14 @@ const scheduleChange = (audioParam, method, params, targetTime) => {
   }
 
   audioParam._scheduledChanges = compose(
-    // TODO: don't store cancelScheduledValues
-    append({
-      method,
-      params,
-      targetTime: clamp(now, Infinity, targetTime)
-    }),
+    unless(
+      () => method === 'cancelScheduledValues',
+      append({
+        method,
+        params,
+        targetTime: clamp(now, Infinity, targetTime)
+      })
+    ),
     reject(compose(
       either(
         (method === 'cancelScheduledValues' ? gte(__, targetTime) : equals(__, targetTime)),
