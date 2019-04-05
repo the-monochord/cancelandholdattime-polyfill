@@ -1,13 +1,49 @@
 /* global BaseAudioContext, AudioContext, webkitAudioContext, AudioParam */
 
+/* find, propEq, min, gt */
 import { isEmpty, prop, compose, not, clamp, isNil, reject, append, equals, lt, __, gte, either, filter, both, reduce, max, pluck } from 'ramda'
+// import { getLinearRampToValueAtTime, getExponentialRampToValueAtTime } from 'pseudo-audio-param/lib/expr.js'
 
 const AudioContextClass = isNil(window.BaseAudioContext) ? (isNil(window.AudioContext) ? webkitAudioContext : AudioContext) : BaseAudioContext
 
 const maxAll = reduce(max, -Infinity)
+/*
+const minAll = reduce(min, Infinity)
+
+const findLastChangeBeforeTime = (scheduledChanges, time) => {
+  const targetTimeOfLastChange = compose(
+    maxAll,
+    filter(lt(__, time)),
+    pluck('targetTime')
+  )(scheduledChanges)
+
+  return find(propEq('targetTime', targetTimeOfLastChange), scheduledChanges)
+}
+
+const findFirstChangeAfterTime = (scheduledChanges, time) => {
+  const targetTimeOfLastChange = compose(
+    minAll,
+    filter(gt(__, time)),
+    pluck('targetTime')
+  )(scheduledChanges)
+
+  return find(propEq('targetTime', targetTimeOfLastChange), scheduledChanges)
+}
+*/
 
 const evaluateSchedulement = (scheduledChanges, initialValue, endTime = Infinity) => {
-  // TODO: evaluate scheduledChanges until endTime. if endTime intersects a ramp, then interpolate it
+  /*
+  const lastChangeBeforeTime = findLastChangeBeforeTime(scheduledChanges, endTime)
+  const firstChangeAfterTime = findFirstChangeAfterTime(scheduledChanges, endTime)
+
+  const value = isNil(lastChangeBeforeTime) ? initialValue : lastChangeBeforeTime.érték
+  if (!isNil(firstChangeAfterTime)) {
+    value = interpoláció(firstChangeAfterTime, value, time)
+  }
+
+  return value
+  */
+
   return 0
 }
 
@@ -31,6 +67,7 @@ const scheduleChange = (audioParam, method, params, targetTime) => {
   }
 
   audioParam._scheduledChanges = compose(
+    // TODO: don't store cancelScheduledValues
     append({
       method,
       params,
