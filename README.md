@@ -12,9 +12,51 @@ Polyfill for AudioParam.prototype.cancelAndHoldAtTime()
 
 [AudioParam.prototype.cancelAndHoldAtTime()](https://developer.mozilla.org/en-US/docs/Web/API/AudioParam/cancelAndHoldAtTime) is an experimental function in the Web Audio API and only supported by Chrome based browsers.
 
-## Task/TODOs:
+## Installation
 
-* Add tests
+### Method 1 - add the built version to your code
+
+Download and add `https://github.com/the-monochord/cancelandholdattime-polyfill/blob/master/dist/cancelandholdattime-polyfill.min.js` to your js files, then add it to your html page before other webaudio scripts with a script tag.
+
+### Method 2 - ES6 import in a nodejs project
+
+Add the polyfill to your nodejs project by running `npm i cancelandholdattime-polyfill`.
+
+Then import it in your main script:
+
+```javascript
+import 'cancelandholdattime-polyfill'
+
+// ... other imports
+```
+
+### Method 3 - add it to your project in build time with webpack
+
+Add the polyfill to your nodejs project by running  `npm i cancelandholdattime-polyfill`.
+
+Then add it to the webpack config before other files in the entry point:
+
+```javascript
+// webpack.config.js
+const config = {
+  entry: {
+    'youroutput': [
+      'cancelandholdattime-polyfill/dist/cancelandholdattime-polyfill.min.js',
+      './src/index.js'
+    ]
+  },
+  // ...
+}
+```
+
+## Limitations and todos
+
+The following methods of the AudioParam object yet to be added to the repo, so calling cancelAndHoldAtTime to intersect those doesn't have any effect:
+
+> setTargetAtTime()
+> setValueCurveAtTime()
+
+These should be added in the near future.
 
 ## Resources
 
