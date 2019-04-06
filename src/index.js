@@ -27,9 +27,8 @@ if (!isNil(window.AudioParam) && isNil(AudioParam.prototype.cancelAndHoldAtTime)
   bindSchedulerToParamMethod('linearRampToValueAtTime', 1)
   bindSchedulerToParamMethod('exponentialRampToValueAtTime', 1)
 
-  // TODO: I don't know how the functions below work, I need to research them in order to implement them
-  // bindSchedulerToParamMethod('setTargetAtTime', 1)
-  // bindSchedulerToParamMethod('setValueCurveAtTime', 1)
+  // bindSchedulerToParamMethod('setTargetAtTime', ??) // timeArg = ??
+  // bindSchedulerToParamMethod('setValueCurveAtTime', ??) // timeArg = [1] + [2]
 
   hijackParamValueSetter()
 

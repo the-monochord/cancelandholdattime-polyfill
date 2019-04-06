@@ -1,13 +1,11 @@
 /* global BaseAudioContext, AudioContext, webkitAudioContext, AudioParam */
 
-/* find, propEq, min, gt */
-import { isEmpty, prop, compose, not, clamp, isNil, reject, append, equals, lt, __, gte, either, filter, both, reduce, max, pluck, unless } from 'ramda'
-// import { getLinearRampToValueAtTime, getExponentialRampToValueAtTime } from 'pseudo-audio-param/lib/expr.js'
+import { isEmpty, prop, compose, not, clamp, isNil, reject, append, equals, lt, __, gte, either, filter, both, reduce, max, pluck, unless, find, propEq, min, gt, last } from 'ramda'
+import { getLinearRampToValueAtTime, getExponentialRampToValueAtTime } from 'pseudo-audio-param/lib/expr.js'
 
 const AudioContextClass = isNil(window.BaseAudioContext) ? (isNil(window.AudioContext) ? webkitAudioContext : AudioContext) : BaseAudioContext
 
 const maxAll = reduce(max, -Infinity)
-/*
 const minAll = reduce(min, Infinity)
 
 const findLastChangeBeforeTime = (scheduledChanges, time) => {
@@ -29,22 +27,39 @@ const findFirstChangeAfterTime = (scheduledChanges, time) => {
 
   return find(propEq('targetTime', targetTimeOfLastChange), scheduledChanges)
 }
-*/
 
-const evaluateSchedulement = (scheduledChanges, initialValue, endTime = Infinity) => {
-  /*
+const getTargetValueOfChange = scheduledChange => {
+  if (scheduledChange.method === 'setValueCurveAtTime') {
+    return last(scheduledChange.params[0])
+  } else {
+    return scheduledChange.params[0]
+  }
+}
+
+const evaluateSchedulement = (scheduledChanges, initialValue, initialTime, endTime = Infinity) => {
   const lastChangeBeforeTime = findLastChangeBeforeTime(scheduledChanges, endTime)
   const firstChangeAfterTime = findFirstChangeAfterTime(scheduledChanges, endTime)
 
-  const value = isNil(lastChangeBeforeTime) ? initialValue : lastChangeBeforeTime.érték
+  let value = isNil(lastChangeBeforeTime) ? initialValue : getTargetValueOfChange(lastChangeBeforeTime)
   if (!isNil(firstChangeAfterTime)) {
-    value = interpoláció(firstChangeAfterTime, value, time)
+    const endTimeOfLastChange = isNil(lastChangeBeforeTime) ? initialTime : lastChangeBeforeTime.targetTime
+    switch (firstChangeAfterTime.method) {
+      case 'linearRampToValueAtTime':
+        value = getLinearRampToValueAtTime(endTime, value, getTargetValueOfChange(firstChangeAfterTime), endTimeOfLastChange, firstChangeAfterTime.targetTime)
+        break
+      case 'exponentialRampToValueAtTime':
+        value = getExponentialRampToValueAtTime(endTime, value, getTargetValueOfChange(firstChangeAfterTime), endTimeOfLastChange, firstChangeAfterTime.targetTime)
+        break
+      /*
+      case 'setTargetAtTime':
+        break
+      case 'setValueCurveAtTime':
+        break
+      */
+    }
   }
 
   return value
-  */
-
-  return 0
 }
 
 const scheduleChange = (audioParam, method, params, targetTime) => {
@@ -63,7 +78,7 @@ const scheduleChange = (audioParam, method, params, targetTime) => {
       maxAll,
       pluck('targetTime')
     )(outdatedSchedulements)
-    audioParam._value = evaluateSchedulement(outdatedSchedulements, audioParam._value)
+    audioParam._value = evaluateSchedulement(outdatedSchedulements, audioParam._value, audioParam._valueWasLastSetAt)
   }
 
   audioParam._scheduledChanges = compose(
@@ -94,7 +109,7 @@ const gotChangesScheduled = compose(
 
 const getValueAtTime = (audioParam, time) => {
   if (gotChangesScheduled(audioParam)) {
-    return evaluateSchedulement(audioParam._scheduledChanges, audioParam._value, time)
+    return evaluateSchedulement(audioParam._scheduledChanges, audioParam._value, audioParam._valueWasLastSetAt, time)
   } else {
     return audioParam._value
   }
@@ -120,7 +135,7 @@ const bindContextToParams = (creatorName, params) => {
         audioParam._scheduledChanges = []
 
         // ramps don't take effect, until there was at least one scheduled change
-        audioParam._hadFinishedSchedulement = false // TODO: when to set this to true?
+        // audioParam._hadFinishedSchedulement = false // TODO: when to set this to true?
       })
       return node
     }

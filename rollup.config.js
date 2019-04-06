@@ -25,8 +25,7 @@ export default [{
   },
   plugins: [
     resolve({
-      jsnext: true,
-      main: true
+      mainFields: ['jsnext', 'main']
     }),
     commonjs({
       namedExports: {
