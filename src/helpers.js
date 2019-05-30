@@ -1,7 +1,7 @@
 /* global BaseAudioContext, AudioContext, webkitAudioContext, AudioParam */
 
-import { isEmpty, prop, compose, not, clamp, isNil, reject, append, equals, lt, __, gte, either, filter, both, reduce, max, pluck, unless, find, propEq, min, gt, last } from 'ramda'
-import { getLinearRampToValueAtTime, getExponentialRampToValueAtTime } from 'pseudo-audio-param/lib/expr.js'
+import { isEmpty, prop, compose, not, clamp, isNil, reject, append, equals, lt, __, gte, either, filter, both, reduce, max, pluck, unless, find, propEq, min, gt, last, has } from 'ramda'
+import { getLinearRampToValueAtTime, getExponentialRampToValueAtTime, getTargetValueAtTime } from 'pseudo-audio-param/lib/expr.js'
 
 const AudioContextClass = isNil(window.BaseAudioContext) ? (isNil(window.AudioContext) ? webkitAudioContext : AudioContext) : BaseAudioContext
 
@@ -50,9 +50,10 @@ const evaluateSchedulement = (scheduledChanges, initialValue, initialTime, endTi
       case 'exponentialRampToValueAtTime':
         value = getExponentialRampToValueAtTime(endTime, value, getTargetValueOfChange(firstChangeAfterTime), endTimeOfLastChange, firstChangeAfterTime.targetTime)
         break
-      /*
       case 'setTargetAtTime':
+        value = getTargetValueAtTime(endTime, value, firstChangeAfterTime.params[0], firstChangeAfterTime.params[1], firstChangeAfterTime.params[2])
         break
+      /*
       case 'setValueCurveAtTime':
         break
       */
@@ -142,12 +143,12 @@ const bindContextToParams = (creatorName, params) => {
   }
 }
 
-const bindSchedulerToParamMethod = (methodName, timeArgIndex) => {
+const bindSchedulerToParamMethod = (methodName, timeArgIndex = null) => {
   const originalFn = AudioParam.prototype[methodName]
   if (!isNil(originalFn)) {
     AudioParam.prototype[methodName] = function (...args) {
       const audioParam = this
-      scheduleChange(audioParam, methodName, args, args[timeArgIndex])
+      scheduleChange(audioParam, methodName, args, has(timeArgIndex, args) ? args[timeArgIndex] : Infinity)
       originalFn.apply(audioParam, args)
       return audioParam
     }
