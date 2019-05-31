@@ -1,6 +1,6 @@
 /* global BaseAudioContext, AudioContext, webkitAudioContext, AudioParam */
 
-import { isEmpty, prop, compose, not, clamp, isNil, reject, append, equals, lt, __, gte, either, filter, both, reduce, max, pluck, unless, find, propEq, min, gt, last, has } from 'ramda'
+import { isEmpty, prop, compose, not, clamp, isNil, reject, append, equals, lt, __, gte, either, filter, both, reduce, max, pluck, unless, find, propEq, min, gt, last, has, all, props, add } from 'ramda'
 import { getLinearRampToValueAtTime, getExponentialRampToValueAtTime, getTargetValueAtTime } from 'pseudo-audio-param/lib/expr.js'
 
 const AudioContextClass = isNil(window.BaseAudioContext) ? (isNil(window.AudioContext) ? webkitAudioContext : AudioContext) : BaseAudioContext
@@ -143,12 +143,16 @@ const bindContextToParams = (creatorName, params) => {
   }
 }
 
-const bindSchedulerToParamMethod = (methodName, timeArgIndex = null) => {
+const bindSchedulerToParamMethod = (methodName, timeArgIndexes = []) => {
   const originalFn = AudioParam.prototype[methodName]
   if (!isNil(originalFn)) {
     AudioParam.prototype[methodName] = function (...args) {
       const audioParam = this
-      scheduleChange(audioParam, methodName, args, has(timeArgIndex, args) ? args[timeArgIndex] : Infinity)
+      let targetTime = Infinity
+      if (!isEmpty(timeArgIndexes) && all(has(__, args), timeArgIndexes)) {
+        targetTime = reduce(add, 0, props(timeArgIndexes, args))
+      }
+      scheduleChange(audioParam, methodName, args, targetTime)
       originalFn.apply(audioParam, args)
       return audioParam
     }

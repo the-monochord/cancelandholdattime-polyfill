@@ -23,13 +23,12 @@ if (!isNil(window.AudioParam) && isNil(AudioParam.prototype.cancelAndHoldAtTime)
     bindContextToParams('createStereoPanner', ['pan'])
 
     // hijack param methods and mark which argument has the time
-    bindSchedulerToParamMethod('cancelScheduledValues', 0)
-    bindSchedulerToParamMethod('setValueAtTime', 1)
-    bindSchedulerToParamMethod('linearRampToValueAtTime', 1)
-    bindSchedulerToParamMethod('exponentialRampToValueAtTime', 1)
-
-    bindSchedulerToParamMethod('setTargetAtTime')
-    // bindSchedulerToParamMethod('setValueCurveAtTime', ??) // timeArg = [1] + [2]
+    bindSchedulerToParamMethod('cancelScheduledValues', [0])
+    bindSchedulerToParamMethod('setValueAtTime', [1])
+    bindSchedulerToParamMethod('linearRampToValueAtTime', [1])
+    bindSchedulerToParamMethod('exponentialRampToValueAtTime', [1])
+    bindSchedulerToParamMethod('setTargetAtTime', [])
+    // bindSchedulerToParamMethod('setValueCurveAtTime', [1, 2])
 
     hijackParamValueSetter()
 
