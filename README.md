@@ -49,14 +49,6 @@ const config = {
 }
 ```
 
-## Limitations and todos
-
-The following methods of the AudioParam object yet to be added to the repo, so calling cancelAndHoldAtTime to intersect those doesn't have any effect:
-
-> setValueCurveAtTime()
-
-These should be added in the near future.
-
 ## Resources
 
 * https://developer.mozilla.org/en-US/docs/Web/API/AudioParam/cancelAndHoldAtTime

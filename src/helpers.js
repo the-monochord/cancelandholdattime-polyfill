@@ -1,7 +1,7 @@
 /* global BaseAudioContext, AudioContext, webkitAudioContext, AudioParam */
 
 import { isEmpty, prop, compose, not, clamp, isNil, reject, append, equals, lt, __, gte, either, filter, both, reduce, max, pluck, unless, find, propEq, min, gt, last, has, all, props, add } from 'ramda'
-import { getLinearRampToValueAtTime, getExponentialRampToValueAtTime, getTargetValueAtTime } from 'pseudo-audio-param/lib/expr.js'
+import { getLinearRampToValueAtTime, getExponentialRampToValueAtTime, getTargetValueAtTime, getValueCurveAtTime } from 'pseudo-audio-param/lib/expr.js'
 
 const AudioContextClass = isNil(window.BaseAudioContext) ? (isNil(window.AudioContext) ? webkitAudioContext : AudioContext) : BaseAudioContext
 
@@ -53,10 +53,9 @@ const evaluateSchedulement = (scheduledChanges, initialValue, initialTime, endTi
       case 'setTargetAtTime':
         value = getTargetValueAtTime(endTime, value, firstChangeAfterTime.params[0], firstChangeAfterTime.params[1], firstChangeAfterTime.params[2])
         break
-      /*
       case 'setValueCurveAtTime':
+        value = getValueCurveAtTime(endTime, firstChangeAfterTime.params[0], firstChangeAfterTime.params[1], firstChangeAfterTime.params[2])
         break
-      */
     }
   }
 
